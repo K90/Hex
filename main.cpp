@@ -15,29 +15,36 @@ class Hexagon {
         }
 };
 
-void DrawMap(std::vector<int> MapCoords);
+void DrawMap(std::vector<int> mapCoords, float x, float y);
 
 int main(void) {
 
     InitWindow(ScreenWidth, ScreenHeight, "Hex");
 
     Vector2 ScreenCenter{ScreenWidth / 2, ScreenHeight / 2};
-    int SCX {static_cast<int>(ScreenCenter.x)};
-    int SCY{static_cast<int>(ScreenCenter.y)};
 
-    std::vector<int> MapCoords {1, 1, 0, 1, 1};
+    std::vector<int> map1 {1, 1, 1, 1, 1, 2,
+                                1, 1, 1, 1, 1, 2,
+                                1, 1, 1, 1, 1, 2,
+                                1, 1, 0, 1, 1, 2,
+                                1, 1, 0, 1, 1, 2,
+                                1, 1, 0, 1, 1, 2,
+                                1, 1, 0, 1, 1, 2,
+                                1, 1, 0, 1, 1, 2,
+                                1, 1, 0, 1, 1, 2,
+                                1, 1, 1, 1, 1, 2,
+                                1, 1, 1, 1, 1, 2,
+                                1, 1, 1, 1, 1, 2,};
 
     while (!WindowShouldClose()) {
 
         BeginDrawing();
         ClearBackground(BLACK);
 
-        DrawMap(MapCoords);
+        DrawMap(map1, 400, 300);
 
         Hexagon h;
         h.Draw(ScreenCenter);
-        DrawLine(SCX, SCY-18, SCX, SCY+18, VIOLET);
-        DrawLine(SCX-20, SCY, SCX+20, SCY, VIOLET);
         EndDrawing();
     }
 
@@ -46,15 +53,38 @@ int main(void) {
     return 0;
 }
 
-void DrawMap(std::vector<int> MapCoords) {
+void DrawMap(std::vector<int> mapCoords, float x, float y) {
 
-    float padding_x{};
-    Hexagon s;
-    for (std::size_t i{}; i <= MapCoords.size(); ++i) {
+    Hexagon slot;
+    float offsetX{30};
+    float offsetY{17};
 
-        padding_x += 60;
-        Vector2 padding{0+padding_x, 20};
+    float paddingX{};
+    float paddingY{};
 
-        s.Draw(padding);
+    int numRows{};
+//    int numColumns{};
+
+    for (std::size_t i{}; i < mapCoords.size(); ++i) {
+
+        paddingX += 60;
+        Vector2 drawPos{x+paddingX, y+paddingY};
+
+//        switch (mapCoords[i]) {
+//            case '1':
+
+//                break;
+//        }
+
+        if (mapCoords[i] == 1)
+            slot.Draw(drawPos);
+
+        if (mapCoords[i] == 2) {
+            paddingX = offsetX;
+            paddingY += offsetY;
+            ++numRows;
+        if (numRows % 2 == 0)
+                paddingX = 0;
+        }
     }
 }
