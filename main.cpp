@@ -1,6 +1,8 @@
 import std;
 #include "vendor/raylib/raylib.h"
 
+using std::pair, std::vector;
+
 constexpr int ScreenWidth{800};
 constexpr int ScreenHeight{600};
 
@@ -15,25 +17,24 @@ class Hexagon {
         }
 };
 
-bool InitMap(std::vector<int> mapCoords, bool initState);
-void DrawMap(std::vector<int> mapCoords, float x, float y);
+pair<float, float> MapInit(vector<int> mapCoords);
+void DrawMap(vector<int> mapCoords, pair<float, float> mapSize, float x, float y);
 
-std::vector<int> map1 {1, 1, 1, 1, 1, 2,
+vector<int> map1 {1, 1, 1, 1, 1, 2,
                        1, 1, 1, 1, 1, 2,
                        1, 1, 1, 1, 1, 2,};
-bool mapInit{false};
 
 int main(void) {
 
     InitWindow(ScreenWidth, ScreenHeight, "Hex");
-    InitMap(map1, mapInit);
+    std::pair<float, float> mapSize = MapInit(map1);
 
     while (!WindowShouldClose()) {
 
         BeginDrawing();
         ClearBackground(BLACK);
 
-        DrawMap(map1, 400, 300);
+        DrawMap(map1, mapSize, 0, 0);
 
         EndDrawing();
     }
@@ -43,19 +44,48 @@ int main(void) {
     return 0;
 }
 
-void DrawMap(std::vector<int> mapCoords, float x, float y) {
+pair<float, float> MapInit(vector<int> mapCoords) {
+
+    int numColumns{};
+    int highestNumCol{};
+    int numRows{};
+
+    for (std::size_t i{}; i < mapCoords.size(); ++i) {
+
+        if (mapCoords[i] != 2)
+            ++highestNumCol;
+        if (mapCoords[i] == 2) {
+            ++numRows;
+            if (highestNumCol > numColumns) {
+                numColumns = highestNumCol;
+            }
+            highestNumCol = 0;
+        }
+    }
+    return std::make_pair(numRows, numColumns);
+}
+
+void DrawMap(vector<int> mapCoords, pair<float, float> mapSize, float x, float y) {
 
     Hexagon slot;
+
     float paddingX{30};
     float paddingY{17};
+
     float offsetX{};
     float offsetY{};
+
+    float centerX{x-(mapSize.first*paddingX/2)};
+    float centerY{y-(mapSize.second*paddingY/2)};
+
+    DrawCircle(static_cast<int>(x), static_cast<int>(y), 10, VIOLET);
+
     int numRows{};
 
     for (std::size_t i{}; i < mapCoords.size(); ++i) {
 
         offsetX += 60;
-        Vector2 drawPos{x + offsetX, y + offsetY};
+        Vector2 drawPos{x+offsetX, y+offsetY};
 
         switch (mapCoords[i]) {
             case 1:
@@ -67,30 +97,7 @@ void DrawMap(std::vector<int> mapCoords, float x, float y) {
                 ++numRows;
                 if (numRows % 2 == 0) //
                     offsetX = 0;
-        }
-    }
-}
-
-bool MapInit(std::vector<int> mapCoords, bool initState) {
-
-    int numRows{};
-    int numColumns{};
-    int highestNumRows{};
-    int highestNumCol{};
-
-    for (std::size_t i{}; i < mapCoords.size() && !initState; ++i) {
-        switch (mapCoords[i]) {
-            case 1:
-                ++numColumns;
-                if(numColumns == 0 || numColumns > highestNumCol)
-                    numColumns = highestNumCol;
                 break;
-            case 2:
-                ++numRows;
-                if (numRows == 0 || numRows > highestNumRows)
-                    numRows = highestNumRows;
         }
     }
-    initState = true;
-    return initState;
 }
