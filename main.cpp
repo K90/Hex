@@ -17,24 +17,111 @@ class Hexagon {
         }
 };
 
-pair<float, float> MapInit(vector<int> mapCoords);
-void DrawMap(vector<int> mapCoords, pair<float, float> mapSize, float x, float y);
+class Map {
+    public:
+        Vector2 mapSize{};
+        float posX{};
+        float posY{};
+
+        Vector2 Init(vector<int> mapCoordinates) {
+
+            int numColumns{};
+            int highestNumCol{};
+            int numRows{};
+
+            for (std::size_t i{}; i < mapCoordinates.size(); ++i) {
+
+                if (mapCoordinates[i] != 2)
+                    ++highestNumCol;
+                if (mapCoordinates[i] == 2) {
+                    ++numRows;
+                    if (highestNumCol > numColumns) {
+                        numColumns = highestNumCol;
+                    }
+                    highestNumCol = 0;
+                }
+            }
+            mapSize = {static_cast<float>(numRows), static_cast<float>(numColumns)};
+            std::cout << "R: " << numRows << '\t' << "C: " << numColumns << '\n';
+            return mapSize;
+        }
+
+        void Draw(vector<int> mapCoordinates, float x, float y) {
+
+            Hexagon slot; //empty space in map
+
+            float paddingX{30};
+            float paddingY{17};
+
+            float offsetX{};
+            float offsetY{};
+//temp
+            std::cout << "x: " << mapSize.x << '\t' << mapSize.y << "y: " << '\n';
+
+            int debug_paddingX{static_cast<int>(paddingX)};
+            int debug_paddingY{static_cast<int>(paddingY)};
+            int debug_mapSizeX{static_cast<int>(mapSize.x)};
+            int debug_mapSizeY{static_cast<int>(mapSize.y)};
+
+            DrawCircle(
+                (static_cast<int>(x)+debug_paddingX*debug_mapSizeY-(debug_paddingX/2)),
+                (static_cast<int>(y)+debug_paddingY*(debug_mapSizeX/2)), 10,
+                VIOLET);
+          //   DrawCircle(10, 10, 10, VIOLET);
+
+            int numRows{};
+
+            for (std::size_t i{}; i < mapCoordinates.size(); ++i) {
+
+                Vector2 drawPos{x+offsetX, y+offsetY};
+
+                switch (mapCoordinates[i]) {
+                    case 1:
+                        offsetX += 60;
+                        slot.Draw(drawPos);
+                        break;
+                    case 2:
+                        offsetY += paddingY;
+                        offsetX = paddingX;
+                        ++numRows;
+                        if (numRows % 2 == 0)
+                            offsetX = 0;
+                        break;
+                }
+            }
+        }
+
+};
 
 vector<int> map1 {1, 1, 1, 1, 1, 2,
-                       1, 1, 1, 1, 1, 2,
-                       1, 1, 1, 1, 1, 2,};
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,
+                  1, 1, 1, 1, 1, 2,};
 
 int main(void) {
 
+    Map mapone;
+
     InitWindow(ScreenWidth, ScreenHeight, "Hex");
-    std::pair<float, float> mapSize = MapInit(map1);
+    mapone.Init(map1);
 
     while (!WindowShouldClose()) {
 
         BeginDrawing();
         ClearBackground(BLACK);
 
-        DrawMap(map1, mapSize, 0, 0);
+        mapone.Draw(map1, 400, 300);
 
         EndDrawing();
     }
@@ -42,62 +129,4 @@ int main(void) {
     CloseWindow();
 
     return 0;
-}
-
-pair<float, float> MapInit(vector<int> mapCoords) {
-
-    int numColumns{};
-    int highestNumCol{};
-    int numRows{};
-
-    for (std::size_t i{}; i < mapCoords.size(); ++i) {
-
-        if (mapCoords[i] != 2)
-            ++highestNumCol;
-        if (mapCoords[i] == 2) {
-            ++numRows;
-            if (highestNumCol > numColumns) {
-                numColumns = highestNumCol;
-            }
-            highestNumCol = 0;
-        }
-    }
-    return std::make_pair(numRows, numColumns);
-}
-
-void DrawMap(vector<int> mapCoords, pair<float, float> mapSize, float x, float y) {
-
-    Hexagon slot;
-
-    float paddingX{30};
-    float paddingY{17};
-
-    float offsetX{};
-    float offsetY{};
-
-    float centerX{x-(mapSize.first*paddingX/2)};
-    float centerY{y-(mapSize.second*paddingY/2)};
-
-    DrawCircle(static_cast<int>(x), static_cast<int>(y), 10, VIOLET);
-
-    int numRows{};
-
-    for (std::size_t i{}; i < mapCoords.size(); ++i) {
-
-        offsetX += 60;
-        Vector2 drawPos{x+offsetX, y+offsetY};
-
-        switch (mapCoords[i]) {
-            case 1:
-                slot.Draw(drawPos); //render a slot
-                break;
-            case 2:
-                offsetY += paddingY; //new row
-                offsetX = paddingX; // back to start
-                ++numRows;
-                if (numRows % 2 == 0) //
-                    offsetX = 0;
-                break;
-        }
-    }
 }
