@@ -10,10 +10,10 @@ class Hexagon {
     public:
         int sides{6};
         float radius{20.0f};
-        Color color{RAYWHITE};
 
-        void Draw(Vector2 pos) {
-            DrawPolyLines(pos, sides, radius, 0, color);
+        void Draw(Vector2 pos, Color color) {
+            DrawPoly(pos, sides, radius, 0, color);
+            DrawPolyLinesEx(pos, sides, radius, 0, 0.5, BLACK);
         }
 };
 
@@ -46,45 +46,39 @@ class Map {
             return mapSize;
         }
 
-        void Draw(vector<int> mapCoordinates, float x, float y) {
+        void Draw(vector<int> mapCoordinates, float x, float y, Color color) {
 
-            Hexagon slot; //empty space in map
+            Hexagon slot; //empty space in map with hexagon border
 
             float paddingX{30};
             float paddingY{17};
 
             float offsetX{};
             float offsetY{};
-//temp
-            std::cout << "x: " << mapSize.x << '\t' << mapSize.y << "y: " << '\n';
 
-            int debug_paddingX{static_cast<int>(paddingX)};
-            int debug_paddingY{static_cast<int>(paddingY)};
-            int debug_mapSizeX{static_cast<int>(mapSize.x)};
-            int debug_mapSizeY{static_cast<int>(mapSize.y)};
+            float numRows{mapSize.x};
+            float numCols{mapSize.y};
 
-            DrawCircle(
-                (static_cast<int>(x)+debug_paddingX*debug_mapSizeY-(debug_paddingX/2)),
-                (static_cast<int>(y)+debug_paddingY*(debug_mapSizeX/2)), 10,
-                VIOLET);
-          //   DrawCircle(10, 10, 10, VIOLET);
-
-            int numRows{};
+            float normalizedX{x-(paddingX*numCols)+(paddingX/2)};
+            float normalizedY{y-paddingY*(numRows/2)};
+            int drawingRow{};
 
             for (std::size_t i{}; i < mapCoordinates.size(); ++i) {
-
-                Vector2 drawPos{x+offsetX, y+offsetY};
+                Vector2 drawPos{normalizedX+offsetX, normalizedY+offsetY};
 
                 switch (mapCoordinates[i]) {
+                    case 0:
+                        offsetX += 60;
+                        break;
                     case 1:
                         offsetX += 60;
-                        slot.Draw(drawPos);
+                        slot.Draw(drawPos, color);
                         break;
                     case 2:
                         offsetY += paddingY;
                         offsetX = paddingX;
-                        ++numRows;
-                        if (numRows % 2 == 0)
+                        ++drawingRow;
+                        if (drawingRow % 2 == 0)
                             offsetX = 0;
                         break;
                 }
@@ -93,7 +87,7 @@ class Map {
 
 };
 
-vector<int> map1 {1, 1, 1, 1, 1, 2,
+vector<int> mapSquare {1, 1, 1, 1, 1, 2,
                   1, 1, 1, 1, 1, 2,
                   1, 1, 1, 1, 1, 2,
                   1, 1, 1, 1, 1, 2,
@@ -109,19 +103,39 @@ vector<int> map1 {1, 1, 1, 1, 1, 2,
                   1, 1, 1, 1, 1, 2,
                   1, 1, 1, 1, 1, 2,};
 
+vector<int> mapHex {
+0, 0, 1, 0, 0, 2,
+0, 1, 1, 0, 0, 2,
+0, 1, 1, 1, 0, 2,
+1, 1, 1, 1, 0, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 0, 2,
+1, 1, 0, 1, 1, 2,
+1, 1, 1, 1, 0, 2,
+1, 1, 1, 1, 1, 2,
+1, 0, 0, 1, 0, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 0, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 0, 2,
+0, 1, 1, 1, 0, 2,
+0, 1, 1, 0, 0, 2,
+0, 0, 1, 0, 0, 2,
+};
+
 int main(void) {
 
-    Map mapone;
+    Map map;
 
     InitWindow(ScreenWidth, ScreenHeight, "Hex");
-    mapone.Init(map1);
-
+    map.Init(mapHex);
+    map.Init(mapSquare);
     while (!WindowShouldClose()) {
 
         BeginDrawing();
         ClearBackground(BLACK);
 
-        mapone.Draw(map1, 400, 300);
+        map.Draw(mapHex, 400, 300, GRAY);
 
         EndDrawing();
     }
