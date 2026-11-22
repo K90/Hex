@@ -1,7 +1,7 @@
 import std;
 #include "vendor/raylib/raylib.h"
 
-using std::pair, std::vector;
+using std::vector;
 
 constexpr int ScreenWidth{800};
 constexpr int ScreenHeight{600};
@@ -13,7 +13,6 @@ class Hexagon {
 
         void Draw(Vector2 pos, Color color) {
             DrawPoly(pos, sides, radius, 0, color);
-            DrawPolyLinesEx(pos, sides, radius, 0, 0.5, BLACK);
         }
 };
 
@@ -31,18 +30,20 @@ class Map {
 
             for (std::size_t i{}; i < mapCoordinates.size(); ++i) {
 
-                if (mapCoordinates[i] != 2)
-                    ++highestNumCol;
-                if (mapCoordinates[i] == 2) {
-                    ++numRows;
-                    if (highestNumCol > numColumns) {
-                        numColumns = highestNumCol;
-                    }
-                    highestNumCol = 0;
+                switch (mapCoordinates[i]) {
+                    case 2:
+                        ++numRows;
+                        if (highestNumCol > numColumns) {
+                            numColumns = highestNumCol;
+                        }
+                        highestNumCol = 0;
+                        break;
+                    default:
+                        ++highestNumCol;
+                        break;
                 }
             }
             mapSize = {static_cast<float>(numRows), static_cast<float>(numColumns)};
-            std::cout << "R: " << numRows << '\t' << "C: " << numColumns << '\n';
             return mapSize;
         }
 
@@ -59,8 +60,8 @@ class Map {
             float numRows{mapSize.x};
             float numCols{mapSize.y};
 
-            float normalizedX{x-(paddingX*numCols)+(paddingX/2)};
-            float normalizedY{y-paddingY*(numRows/2)};
+            float normalizedX{x-(paddingX*numCols)+(paddingX/2)}; // offset with the centre of mapX
+            float normalizedY{y-paddingY*(numRows/2)};            // offset with the centere of mapY
             int drawingRow{};
 
             for (std::size_t i{}; i < mapCoordinates.size(); ++i) {
@@ -87,21 +88,23 @@ class Map {
 
 };
 
-vector<int> mapSquare {1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,
-                  1, 1, 1, 1, 1, 2,};
+vector<int> mapSquare {
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+1, 1, 1, 1, 1, 2,
+};
 
 vector<int> mapHex {
 0, 0, 1, 0, 0, 2,
@@ -125,11 +128,12 @@ vector<int> mapHex {
 
 int main(void) {
 
-    Map map;
-
     InitWindow(ScreenWidth, ScreenHeight, "Hex");
+
+    Map map;
     map.Init(mapHex);
     map.Init(mapSquare);
+
     while (!WindowShouldClose()) {
 
         BeginDrawing();
