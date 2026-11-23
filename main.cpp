@@ -68,9 +68,6 @@ class Map {
                 Vector2 drawPos{normalizedX+offsetX, normalizedY+offsetY};
 
                 switch (mapCoordinates[i]) {
-                    case 0:
-                        offsetX += 60;
-                        break;
                     case 1:
                         offsetX += 60;
                         slot.Draw(drawPos, color);
@@ -81,6 +78,9 @@ class Map {
                         ++drawingRow;
                         if (drawingRow % 2 == 0)
                             offsetX = 0;
+                        break;
+                    default:
+                        offsetX += 60;
                         break;
                 }
             }
